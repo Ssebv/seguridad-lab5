@@ -28,7 +28,7 @@ def intercambio_diffie_hellman(conn, p, g):
 def main():
 
     host = '127.0.0.1'
-    port = 65001
+    port = 65000
     p = 23  # Puede cambiar estos valores por valores reales de p y g utilizados en su implementación
     g = 5
     
@@ -46,7 +46,7 @@ def main():
                 shared_key = intercambio_diffie_hellman(conn, p, g)
                 
                 while True:
-                    mensaje_descifrado = recibir_mensaje_cifrado(conn, shared_key)
+                    mensaje_descifrado = recibir_mensaje_cifrado(conn, shared_key, 'mensajesRecibidos.txt')
                     if mensaje_descifrado is None:
                         break
                     elif mensaje_descifrado is not None:

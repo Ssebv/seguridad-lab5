@@ -29,7 +29,7 @@ def main():
     
     # Parametros de conexion
     host = "127.0.0.1"
-    port = 65001
+    port = 65000
     
     # Parametros Diffie-Hellman
     p = 23 

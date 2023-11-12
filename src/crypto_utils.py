@@ -1,8 +1,9 @@
 from Crypto.Cipher import DES
 from Crypto.Util.Padding import unpad, pad
 from Crypto.Random import get_random_bytes
+import os
 
-def recibir_mensaje_cifrado(conn, key):
+def recibir_mensaje_cifrado(conn, key, carpeta):
     iv = conn.recv(8)  # Recibir el IV del cliente
     mensaje_cifrado = conn.recv(1024)
 
@@ -13,6 +14,16 @@ def recibir_mensaje_cifrado(conn, key):
         return None
     cipher = DES.new(key, DES.MODE_CBC, IV=iv)
     mensaje_descifrado = unpad(cipher.decrypt(mensaje_cifrado), DES.block_size)
+    
+    if not os.path.exists(carpeta):
+        os.makedirs(carpeta)
+        
+    archivo = os.path.join(carpeta, 'mensajeRecibido.txt')
+
+        
+    with open(archivo, 'a') as file:
+        file.write(mensaje_descifrado.decode() + '\n')
+        
     return mensaje_descifrado
 
 def enviar_mensaje_cifrado(conn, mensaje, key): # Aqui se cifra el mensaje y se envia
