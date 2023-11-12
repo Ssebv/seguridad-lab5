@@ -1,17 +1,6 @@
-from Crypto.Cipher import DES
-from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad
 import socket
 
-def mod(base, exp, mod): # Modulo para Diffie-Hellman
-    result = 1
-    base = base % mod
-    while exp > 0:
-        if exp % 2 == 1:
-            result = (result * base) % mod
-        exp = exp >> 1
-        base = (base * base) % mod
-    return result
+from crypto_utils import *
 
 def generador_claves(p, g): # Generador de claves Diffie-Hellman
     private_key = get_random_bytes(8)
@@ -26,16 +15,6 @@ def recibir_clave_publica(conn): # Recibir clave publica del servidor
     public_key_bytes = conn.recv(1024)
     public_key = int.from_bytes(public_key_bytes, 'big')
     return public_key
-
-def enviar_mensaje_cifrado(conn, mensaje, key): # Aqui se cifra el mensaje y se envia
-    iv = get_random_bytes(8)
-    cipher = DES.new(key, DES.MODE_CBC, IV=iv)
-    mensaje_cifrado = cipher.encrypt(pad(mensaje.encode(), DES.block_size))
-
-    print(f"Tamaño del IV enviado: {len(iv)} bytes")
-    print(f"Tamaño del mensaje cifrado: {len(mensaje_cifrado)} bytes")
-
-    conn.sendall(iv + mensaje_cifrado) # Enviar IV + mensaje cifrado
 
 def intercambio_diffie_hellman(conn, p, g):
     """Realiza el intercambio Diffie-Hellman."""
