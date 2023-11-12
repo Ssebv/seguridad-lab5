@@ -1,8 +1,7 @@
 import random
 import socket
 from Crypto.Cipher import DES
-from Crypto.Util.Padding import pad, unpad
-
+from Crypto.Util.Padding import unpad
 
 def mod(base, exp, mod):
     result = 1
@@ -14,36 +13,49 @@ def mod(base, exp, mod):
         base = (base * base) % mod
     return result
 
-# Función para generar claves deffie-hellman
-def generador_claves(p, g): # p y g son los parámetros públicos
+def generador_claves(p, g):
     private_key = random.randint(1, p - 1)
     public_key = mod(g, private_key, p)
     return private_key, public_key
 
-# Reciviir clave pública 
 def recibir_clave_publica(conn):
     # Recibir clave pública
-    public_key = int(conn.recv(1024).decode())
+    public_key_bytes = conn.recv(1024)
+    public_key = int.from_bytes(public_key_bytes, 'big')
     return public_key
 
-# Enviar clave publica
 def enviar_clave_publica(conn, key):
     key_bytes = key.to_bytes((key.bit_length() + 7) // 8, 'big')
-    conn.send(key_bytes)
+    conn.sendall(key_bytes)
+    
+def recibir_mensaje_cifrado(conn, key):
+    iv = conn.recv(8)  # Recibir el IV del cliente
+    mensaje_cifrado = conn.recv(1024)
 
-def cifrar_mensaje(mensaje, key):
-    cipher = DES.new(str(key).encode(), DES.MODE_ECB)
-    mensaje_cifrado = cipher.encrypt(pad(mensaje.encode(), 8))
-    return mensaje_cifrado
+    print(f"Tamaño del IV recibido: {len(iv)} bytes")
+    print(f"Tamaño del mensaje cifrado recibido: {len(mensaje_cifrado)} bytes")
 
-def descifrar_mensaje(mensaje_cifrado, key):
-    cipher = DES.new(str(key).encode(), DES.MODE_ECB)
-    mensaje_descifrado = unpad(cipher.decrypt(mensaje_cifrado), DES.block_size).decode()
+    if not mensaje_cifrado:
+        return None
+    cipher = DES.new(key, DES.MODE_CBC, IV=iv)
+    mensaje_descifrado = unpad(cipher.decrypt(mensaje_cifrado), DES.block_size)
     return mensaje_descifrado
 
+def intercambio_diffie_hellman(conn, p, g):
+    private_key, public_key = generador_claves(p, g)
+    enviar_clave_publica(conn, public_key)
+    client_public_key = recibir_clave_publica(conn)
+    shared_key = mod(client_public_key, private_key, p).to_bytes(8, 'big')
+    print('Clave compartida:', shared_key)
+    return shared_key
+
 def main():
+
     host = '127.0.0.1'
     port = 65001
+    p = 23  # Puede cambiar estos valores por valores reales de p y g utilizados en su implementación
+    g = 5
+    # key = b'my_secret_key'  # Clave de cifrado DES
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -54,42 +66,21 @@ def main():
         try:
             with conn:
                 print('Conectado a', addr)
-                
-                # Recibir parámetros públicos Diffie-Hellman
-                p = int(conn.recv(1024).decode())
-                g = int(conn.recv(1024).decode())
-                
-                # Generar claves Diffie-Hellman
-                private_key, public_key = generador_claves(p, g)
-                
-                # # Enviar clave pública al cliente
-                enviar_clave_publica(conn, public_key)
-                
-                # # Recibir clave pública del cliente
-                client_public_key = recibir_clave_publica(conn)
-                
-                # # Calcular clave compartida
-                shared_key = mod(client_public_key, private_key, p)
-                print('Clave compartida:', shared_key)
-                
-                # Recibir mensaje cifrado del cliente
-                mensaje_cifrado = conn.recv(1024)
-                print('Mensaje cifrado recibido:', mensaje_cifrado)
-                
 
-                mensaje_descifrado = descifrar_mensaje(mensaje_cifrado, shared_key)
+                # Realizar intercambio Diffie-Hellman
+                shared_key = intercambio_diffie_hellman(conn, p, g)
+                
+                while True:
+                    mensaje_descifrado = recibir_mensaje_cifrado(conn, shared_key)
+                    if mensaje_descifrado is None:
+                        break
+                    elif mensaje_descifrado is not None:
+                        print("Mensaje recibido:", mensaje_descifrado.decode())
 
-                
-                # Escribir el mensaje descifrado en un archivo
-                with open('mensajerecibido.txt', 'w') as file:
-                    file.write(mensaje_descifrado)
-                    print('Mensaje descifrado escrito en mensajerecibido.txt')
-                
-                conn.close()
-                print('Conexión cerrada')
-        
+
         except Exception as e:
             print(f"Error: {e}")
+
             
 if __name__ == '__main__':
     main()
