@@ -46,7 +46,7 @@ def main():
                 shared_key = intercambio_diffie_hellman(conn, p, g)
                 
                 while True:
-                    mensaje_descifrado = recibir_mensaje_cifrado(conn, shared_key, 'mensajesRecibidos.txt')
+                    mensaje_descifrado = recibir_mensaje_cifrado(conn, shared_key, 'mensaje')
                     if mensaje_descifrado is None:
                         break
                     elif mensaje_descifrado is not None:
