@@ -38,12 +38,12 @@ def cifrar_mensaje(mensaje, key):
 
 def descifrar_mensaje(mensaje_cifrado, key):
     cipher = DES.new(str(key).encode(), DES.MODE_ECB)
-    mensaje_descifrado = unpad(cipher.decrypt(mensaje_cifrado), 8).decode()
-    return mensaje_descifrado 
+    mensaje_descifrado = unpad(cipher.decrypt(mensaje_cifrado), DES.block_size).decode()
+    return mensaje_descifrado
 
 def main():
     host = '127.0.0.1'
-    port = 65002
+    port = 65001
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -62,13 +62,13 @@ def main():
                 # Generar claves Diffie-Hellman
                 private_key, public_key = generador_claves(p, g)
                 
-                # Enviar clave pública al cliente
+                # # Enviar clave pública al cliente
                 enviar_clave_publica(conn, public_key)
                 
-                # Recibir clave pública del cliente
+                # # Recibir clave pública del cliente
                 client_public_key = recibir_clave_publica(conn)
                 
-                # Calcular clave compartida
+                # # Calcular clave compartida
                 shared_key = mod(client_public_key, private_key, p)
                 print('Clave compartida:', shared_key)
                 
@@ -76,9 +76,9 @@ def main():
                 mensaje_cifrado = conn.recv(1024)
                 print('Mensaje cifrado recibido:', mensaje_cifrado)
                 
-                # Descifrar el mensaje con DES
+
                 mensaje_descifrado = descifrar_mensaje(mensaje_cifrado, shared_key)
-                print('Mensaje descifrado:', mensaje_descifrado)
+
                 
                 # Escribir el mensaje descifrado en un archivo
                 with open('mensajerecibido.txt', 'w') as file:
