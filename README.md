@@ -2,7 +2,7 @@
 
 Se implementación un sistema cliente-servidor que utiliza el intercambio de claves Diffie-Hellman para establecer una clave compartida y cifra/descifra mensajes usando el algoritmo de cifrado DES.
 
-![Deffi Hellman](./img/diffie-hellman.png)
+![Diffie Hellman](./img/diffieHellman.png)
 
 ## Estructura 
 
