@@ -2,7 +2,7 @@ import socket
 
 from crypto_utils import *
 
-def generador_claves(p, g): # Generador de claves Diffie-Hellman
+def generador_claves(p, g): 
     private_key = get_random_bytes(8)
     public_key = mod(g, int.from_bytes(private_key, 'big'), p)
     return private_key, public_key
@@ -16,12 +16,11 @@ def recibir_clave_publica(conn): # Recibir clave publica del servidor
     public_key = int.from_bytes(public_key_bytes, 'big')
     return public_key
 
-def intercambio_diffie_hellman(conn, p, g):
-    """Realiza el intercambio Diffie-Hellman."""
+def intercambio_diffie_hellman(conn, p, g): # Funcion que realiza el intercambio Diffie-Hellman de claves
     private_key, public_key = generador_claves(p, g)
     enviar_clave_publica(conn, public_key)
     server_public_key = recibir_clave_publica(conn)
-    shared_key = mod(server_public_key, int.from_bytes(private_key, 'big'), p).to_bytes(8, 'big')
+    shared_key = mod(server_public_key, int.from_bytes(private_key, 'big'), p).to_bytes(8, 'big') # Generar clave compartida
     print('Clave compartida:', shared_key)
     return shared_key
 
