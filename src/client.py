@@ -21,12 +21,10 @@ def intercambio_diffie_hellman(conn, p, g): # Funcion que realiza el intercambio
     enviar_clave_publica(conn, public_key)
     server_public_key = recibir_clave_publica(conn)
     shared_key = mod(server_public_key, int.from_bytes(private_key, 'big'), p).to_bytes(8, 'big') # Generar clave compartida
-    print('Clave compartida:', shared_key)
+    print('Clave compartida:', shared_key) 
     return shared_key
 
 def main():
-    
-    # Parametros de conexion
     host = "127.0.0.1"
     port = 65000
     

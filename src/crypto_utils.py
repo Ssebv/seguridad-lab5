@@ -3,8 +3,7 @@ from Crypto.Util.Padding import unpad, pad
 from Crypto.Random import get_random_bytes
 import os
 
-def recibir_mensaje_cifrado(conn, key, carpeta):
-    
+def recibir_mensaje_cifrado(conn, key, carpeta):  
     iv = conn.recv(8)  # Recibir el IV del cliente para poder descifrar el mensaje
     mensaje_cifrado = conn.recv(1024) # Recibir el mensaje cifrado del cliente
 

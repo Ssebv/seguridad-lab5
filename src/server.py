@@ -1,6 +1,5 @@
 import random
 import socket
-
 from crypto_utils import *
 
 def generador_claves(p, g): # Generador de claves Diffie-Hellman
