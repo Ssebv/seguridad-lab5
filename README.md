@@ -26,9 +26,8 @@ Se implementación un sistema cliente-servidor que utiliza el intercambio de cla
     ```
 
 4. **Ejecutar el Cliente:**
-    - Asegúrate de tener Go instalado.
     ```bash
-    go run client.go
+    python3 client.go
     ```
 
 5. **Verificar Resultados:**
